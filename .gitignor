@@ -1,0 +1,3 @@
+gatling_kafka_tests/target
+kafka_stub/target
+.DS_Store
