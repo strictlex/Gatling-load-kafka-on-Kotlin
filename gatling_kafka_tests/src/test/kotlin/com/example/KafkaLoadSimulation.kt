@@ -1,78 +1,55 @@
 package com.example
 
 
+
 import io.gatling.javaapi.core.*
-import org.apache.kafka.clients.producer.*
 import io.gatling.javaapi.core.CoreDsl.*
+import org.galaxio.gatling.kafka.javaapi.KafkaDsl.*
+import org.apache.kafka.clients.producer.ProducerConfig
 import java.time.Duration
+import java.util.UUID
 import java.util.*
-import java.util.concurrent.TimeUnit
+
 
 class KafkaLoadSimulation : Simulation(){
-    private val kafkaProducer = Producer.create(
-        mapOf(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to "org.apache.kafka.common.serialization.StringSerializer",
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to "org.apache.kafka.common.serialization.StringSerializer",
-            ProducerConfig.ACKS_CONFIG to "1",
-            ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG to "5000",
-            ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG to "10000",
-            ProducerConfig.MAX_BLOCK_MS_CONFIG to "10000"
+    private val kafkaConf = kafka()
+        .properties(
+            mapOf(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to "org.apache.kafka.common.serialization.StringSerializer",
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to "org.apache.kafka.common.serialization.StringSerializer",
+                ProducerConfig.ACKS_CONFIG to "1"
+            )
         )
-    )
-
-
-
-
-    private fun randomInn(): String{
-        return (1..12).map {(0..9).random()}.joinToString("")
-    }
 
 
 
     val scn = scenario("Kafka Load Test")
-        .exec { session ->
-            val msgId = UUID.randomUUID().toString()
-            val fullName = FullName().randomFullName()
-            val inn = randomInn()
-            val message = """{"msg_id":"$msgId","full_name":"$fullName","inn":"$inn"}"""
-            val record = ProducerRecord("test-topic", msgId, message)
+        .exec { session : Session ->
+            session
+                .set("msgId", UUID.randomUUID().toString())
+                .set("fullName", Vars.randomFullName())
+                .set("inn", Vars.randomInn())
+        }.exec (
+            kafka("Send message").topic("test-topic")
+                .send("#{msgId}", // Ключ
+                    """{"msg_id":"#{msgId}","full_name":"#{fullName}","inn":"#{inn}"}"""
 
-//            println("Отправка сообщения $msgId")
+                )
+            )
 
-            val resultSession = try {
-                kafkaProducer.send(record).get(5, TimeUnit.SECONDS)
-//                println("Сообщение $msgId отправлено")
-                session.markAsSucceeded()
-            } catch (e: Exception){
-                System.err.println("Ошибка отправки в Кафка: ${e.message}")
-                e.printStackTrace()
-                session.markAsFailed()
-            }
-            resultSession
-        }
 
     init {
         setUp(
             scn.injectOpen(
-                constantUsersPerSec(10.0).during(Duration.ofSeconds(5)),
-                constantUsersPerSec(15.0).during(Duration.ofSeconds(5)),
-                constantUsersPerSec(25.0).during(Duration.ofSeconds(5)),
-                constantUsersPerSec(50.0).during(Duration.ofSeconds(5))
+
+                constantUsersPerSec(5.0).during(Duration.ofMinutes(1)),
+                constantUsersPerSec(10.0).during(Duration.ofMinutes(1)),
+                constantUsersPerSec(25.0).during(Duration.ofMinutes(1)),
+                constantUsersPerSec(50.0).during(Duration.ofMinutes(1))
             )
-        ).protocols()
+        ).protocols(kafkaConf)
     }
-
-    object Producer{
-        fun create(config: Map<String,String>): KafkaProducer<String, String> {
-
-            val props = Properties()
-            props.putAll(config)
-            return KafkaProducer(props)
-        }
-    }
-
-
 
 
 
