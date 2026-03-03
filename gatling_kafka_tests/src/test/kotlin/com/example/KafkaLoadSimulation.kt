@@ -1,14 +1,11 @@
 package com.example
 
-
-
 import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
 import org.galaxio.gatling.kafka.javaapi.KafkaDsl.*
 import org.apache.kafka.clients.producer.ProducerConfig
 import java.time.Duration
 import java.util.UUID
-
 
 
 class KafkaLoadSimulation : Simulation(){
@@ -21,7 +18,6 @@ class KafkaLoadSimulation : Simulation(){
                 ProducerConfig.ACKS_CONFIG to "1"
             )
         )
-
 
 
     val scn = scenario("Kafka Load Test")
@@ -50,19 +46,4 @@ class KafkaLoadSimulation : Simulation(){
             )
         ).protocols(kafkaConf)
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

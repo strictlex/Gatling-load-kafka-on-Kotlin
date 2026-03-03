@@ -11,9 +11,8 @@
     <properties>
         <kotlin.version>1.9.0</kotlin.version>
 
-        <gatling.version>3.13.5</gatling.version>
-        <gatling.plugin.version>4.13.0</gatling.plugin.version>
-
+        <gatling.version>3.15.0</gatling.version>
+        <gatling.plugin.version>4.21.0</gatling.plugin.version>
         <gatling-kafka.version>1.0.0-RC2</gatling-kafka.version>
 
         <maven.compiler.source>11</maven.compiler.source>
@@ -25,13 +24,19 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
-            <version>${kotlin.version}</version>
+            <version>2.3.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
         </dependency>
 
         <dependency>
             <groupId>io.gatling</groupId>
             <artifactId>gatling-app</artifactId>
-            <version>${gatling.version}</version>
+            <version>3.15.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -49,11 +54,14 @@
             <scope>test</scope>
         </dependency>
 
+
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>3.5.0</version>
+            <version>7.9.2-ccs</version>
         </dependency>
+
+
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -62,7 +70,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
         <repository>
             <id>confluent</id>
             <url>https://packages.confluent.io/maven/</url>
@@ -73,7 +86,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
+                <version>2.3.10</version>
                 <executions>
                     <execution>
                         <id>test-compile</id>
@@ -93,7 +106,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M7</version>
+                <version>3.5.4</version>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
